@@ -17,17 +17,22 @@ const bookingSchema = new mongoose.Schema({
   },
   startTime: {
     type: String,
-    required: true
+    required: true // Format: "14:00"
   },
   endTime: {
     type: String,
-    required: true
+    required: true // Format: "15:00"
   },
   status: {
     type: String,
-    enum: ['pending', 'approved', 'rejected'],
+    enum: ['pending', 'approved', 'rejected', 'cancelled'],
     default: 'pending'
-  }
+  },
+  rejectionReason: {
+  type: String,
+  default: null
+}
+
 });
 
 module.exports = mongoose.model('Booking', bookingSchema);
