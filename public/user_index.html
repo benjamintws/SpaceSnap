@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>User Dashboard</title>
+  <link rel="stylesheet" href="/css/user_index.css">
+</head>
+<body>
+  <header class="navbar">
+    <div class="nav-left">
+      <img src="/images/logo2.png" alt="Logo" class="logo">
+    </div>
+    <nav class="nav-center">
+      <button class="nav-btn">Home</button>
+      <button class="nav-btn">Classrooms</button>
+      <button class="nav-btn">Notifications</button>
+    </nav>
+    <div class="nav-right">
+        <a href="#" id="logout-btn" class="logout-btn">Log Out</a>
+    </div>
+  </header>
+
+  <main class="content">
+    <aside class="sidebar">
+        <h3>Filter by Level</h3>
+        <ul id="level-list"></ul>
+    </aside>
+    <section class="table-container">
+        <table>
+        <thead>
+            <tr>
+            <th>Class Name</th>
+            <th>Location</th>
+            <th>Capacity</th>
+            <th>Equipments</th>
+            <th>Status</th>
+            <th>Book</th>
+            </tr>
+        </thead>
+        <tbody id="classroom-table-body">
+            <!-- Filled dynamically -->
+        </tbody>
+        </table>
+    </section>
+    <div id="booking-popup" class="popup hidden">
+        <div class="popup-content">
+            <h2>Book Classroom</h2>
+            <form id="booking-form">
+            <input type="hidden" id="booking-classroom-id">
+            <label>Start Time: <input type="time" id="start-time" required></label><br>
+            <label>End Time: <input type="time" id="end-time" required></label><br>
+            <button type="submit">Confirm Booking</button>
+            <button type="button" id="close-popup">Cancel</button>
+            </form>
+        </div>
+    </div>
+  </main>
+  <script src="/js/user_index.js"></script>
+  <script src="/js/logout.js"></script>
+</body>
+</html>

@@ -14,6 +14,12 @@ const classroomSchema = new mongoose.Schema({
     type: Number,
     required: true // e.g., 2
   },
+  availability: {
+  type: String,
+  enum: ['available', 'booked', 'in_use'],
+  default: 'available'
+},
+
   equipment: [String] // e.g., ["Projector", "Speakers"]
 });
 

@@ -3,40 +3,48 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 const express = require('express')
+const path = require('path')
 const app = express()
-const expressLayouts = require('express-ejs-layouts')
 
 // Route files
-const indexRouter = require('./routes/index') 
-const authRoutes = require('./routes/auth') 
-const classroomRoutes = require('./routes/classroom'); 
-const bookingRoutes = require('./routes/booking');
-const notificationRoutes = require('./routes/notification');
+const authRoutes = require('./routes/auth')
+const classroomRoutes = require('./routes/classroom')
+const bookingRoutes = require('./routes/booking')
+const notificationRoutes = require('./routes/notification')
 
-// Middleware setup
-app.set('view engine', 'ejs')
-app.set('views', __dirname + '/views')
-app.set('layout', 'layouts/layout')
-app.use(expressLayouts)
-app.use(express.static('public'))
-app.use(express.json()); // parses JSON in request body
+// Middleware
+app.use(express.static(path.join(__dirname, 'public'))) // serve HTML, CSS, JS
+app.use(express.json()) // parse JSON in request body
 
 // MongoDB connection
 const mongoose = require('mongoose')
-mongoose.connect(process.env.DATABASE_URL, { useNewUrlParser: true, useUnifiedTopology: true })
+mongoose.connect(process.env.DATABASE_URL, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+})
+
+mongoose.connection.on('connected', () => {
+  console.log('🟢 Mongoose connected to:', mongoose.connection.name);
+});
+
 const db = mongoose.connection
 db.on('error', error => console.error(error))
 db.once('open', () => console.log('Connected to Mongoose'))
 
-// Routes
-app.use('/', indexRouter)
+// Serve login.html at root route
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'login.html'))
+})
+
+// API routes
 app.use('/api/auth', authRoutes)
-app.use('/api/classrooms', classroomRoutes);
-app.use('/api/bookings', bookingRoutes);
-app.use('/api/notifications', notificationRoutes);
+app.use('/api/classrooms', classroomRoutes)
+app.use('/api/bookings', bookingRoutes)
+app.use('/api/notifications', notificationRoutes)
 
+// Cron job
+require('./jobs/bookingReminder')
 
-require('./jobs/bookingReminder'); // 🔔 Start reminder cron
-
-
-app.listen(process.env.PORT || 3000)
+app.listen(process.env.PORT || 3000, () => {
+  console.log('Server is running on port', process.env.PORT || 3000)
+})

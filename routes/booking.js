@@ -40,7 +40,8 @@ router.post('/', authenticate, async (req, res) => {
     const weeklyBookings = await Booking.find({
       user: userId,
       date: { $gte: start, $lte: end },
-      status: { $ne: 'cancelled' }
+      status: { $ne: 'cancelled' },
+      refunded: false
     });
 
     // Custom rule: student = 1 per week
@@ -186,6 +187,24 @@ router.put('/:id/cancel', authenticate, async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 });
+
+// PUT /api/bookings/:id/refund - Admin manually refunds booking slot
+router.put('/:id/refund', authenticate, authorizeRoles('admin'), async (req, res) => {
+  try {
+    const booking = await Booking.findById(req.params.id);
+    if (!booking) return res.status(404).json({ message: 'Booking not found' });
+
+    if (booking.refunded) return res.status(400).json({ message: 'Booking already refunded' });
+
+    booking.refunded = true;
+    await booking.save();
+
+    res.json({ message: 'Booking slot manually refunded', booking });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
 
 // GET /api/bookings/my - View current user's bookings
 router.get('/my', authenticate, async (req, res) => {

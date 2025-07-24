@@ -4,23 +4,37 @@ const Classroom = require('../models/Classroom');
 const Booking = require('../models/Booking');
 const { authenticate, authorizeRoles } = require('../middlewares/auth'); // 🔐 Auth check
 
+// GET /api/classrooms/levels - View all distinct levels
+router.get('/levels', authenticate, async (req, res) => {
+  try {
+    const levels = await Classroom.distinct('level');
+    res.json(levels);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
 
-// ✅ GET /api/classrooms - View all classrooms (auth required)
+// GET /api/classrooms - Filter by level
 router.get('/', authenticate, async (req, res) => {
   try {
-    const classrooms = await Classroom.find();
+    const filter = {};
+    if (req.query.level !== undefined) {
+      filter.level = Number(req.query.level); // e.g. ?level=0
+    }
+
+    const classrooms = await Classroom.find(filter);
+
     res.json(classrooms);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 });
 
-// GET /api/classrooms/filter - Filter classrooms (auth required)
+// GET /api/classrooms/filter - Advanced filtering
 router.get('/filter', authenticate, async (req, res) => {
   try {
     const { level, location, capacity, start, end, status } = req.query;
 
-    // Step 1: Build base classroom filter
     const filter = {};
     if (level) filter.level = Number(level);
     if (location) filter.location = { $regex: new RegExp(location, 'i') };
@@ -28,12 +42,8 @@ router.get('/filter', authenticate, async (req, res) => {
 
     let classrooms = await Classroom.find(filter);
 
-    // Step 2: If status = "available", filter based on time
     if (status === 'available' && start && end) {
-      const startTime = start;
-      const endTime = end;
-      const today = new Date().toISOString().split('T')[0]; // today's date (YYYY-MM-DD)
-
+      const today = new Date().toISOString().split('T')[0];
       const availableClassrooms = [];
 
       for (let classroom of classrooms) {
@@ -42,7 +52,7 @@ router.get('/filter', authenticate, async (req, res) => {
           date: today,
           status: 'approved',
           $or: [
-            { startTime: { $lt: endTime }, endTime: { $gt: startTime } }
+            { startTime: { $lt: end }, endTime: { $gt: start } }
           ]
         });
 
@@ -55,13 +65,12 @@ router.get('/filter', authenticate, async (req, res) => {
     }
 
     res.json(classrooms);
-
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 });
 
-// (Optional: GET /:id to view a specific classroom)
+// Optional: GET classroom by ID
 router.get('/:id', authenticate, async (req, res) => {
   try {
     const classroom = await Classroom.findById(req.params.id);
@@ -72,7 +81,7 @@ router.get('/:id', authenticate, async (req, res) => {
   }
 });
 
-// ✅ TEMP: POST /api/classrooms/add - Add classroom (admin only)
+// POST /api/classrooms/add - Admin only
 router.post('/add', authenticate, authorizeRoles('admin'), async (req, res) => {
   try {
     const classroom = new Classroom(req.body);

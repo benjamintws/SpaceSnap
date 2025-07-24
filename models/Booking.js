@@ -31,7 +31,12 @@ const bookingSchema = new mongoose.Schema({
   rejectionReason: {
   type: String,
   default: null
+},
+refunded: {
+  type: Boolean,
+  default: false
 }
+
 
 });
 
