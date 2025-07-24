@@ -83,6 +83,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const classroomId = classroomIdInput.value;
     const startTime = startTimeInput.value;
     const endTime = endTimeInput.value;
+    const date = new Date().toISOString().split('T')[0]; // today's date
 
     try {
       const res = await fetch('/api/bookings', {
@@ -91,7 +92,7 @@ document.addEventListener('DOMContentLoaded', () => {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${localStorage.getItem('token')}`
         },
-        body: JSON.stringify({ classroom: classroomId, startTime, endTime })
+        body: JSON.stringify({ classroom: classroomId, startTime, endTime, date })
       });
 
       const result = await res.json();

@@ -1,7 +1,8 @@
 const jwt = require('jsonwebtoken');
+const User = require('../models/User'); // adjust path if needed
 
-// Check if token is valid
-const authenticate = (req, res, next) => {
+// ✅ Check if token is valid and attach full user object
+const authenticate = async (req, res, next) => {
   const authHeader = req.header('Authorization');
   const token = authHeader && authHeader.split(' ')[1];
 
@@ -9,14 +10,17 @@ const authenticate = (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded; // attaches { id, role } to the request
+    const user = await User.findById(decoded.id); // get full user
+    if (!user) return res.status(403).json({ message: 'User not found' });
+
+    req.user = user; // now includes name, email, role, etc.
     next();
   } catch (err) {
     res.status(403).json({ message: 'Invalid or expired token' });
   }
 };
 
-// Check if user has required role
+// ✅ Check if user has required role
 const authorizeRoles = (...roles) => {
   return (req, res, next) => {
     if (!req.user || !roles.includes(req.user.role)) {

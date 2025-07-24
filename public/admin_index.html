@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Dashboard</title>
+  <link rel="stylesheet" href="/css/admin_index.css">
+</head>
+<body>
+  <header class="navbar">
+    <div class="nav-left">
+      <img src="/images/logo2.png" alt="Logo" class="logo">
+    </div>
+    <div class="nav-right">
+      <a href="#" id="logout-btn" class="logout-btn">Log Out</a>
+    </div>
+  </header>
+
+  <main class="content">
+    <h2>Pending Bookings</h2>
+    <table class="booking-table">
+      <thead>
+        <tr>
+          <th>No.</th>
+          <th>Class Name</th>
+          <th>Booker</th>
+          <th>Start</th>
+          <th>End</th>
+          <th>Approval</th>
+        </tr>
+      </thead>
+      <tbody id="booking-table-body">
+        <!-- Bookings will be dynamically inserted here -->
+      </tbody>
+    </table>
+
+    <!-- Approval Popup -->
+    <div class="popup hidden" id="action-popup">
+      <div class="popup-content">
+        <h3>Booking Decision</h3>
+        <input type="hidden" id="popup-booking-id">
+        <div class="decision-options">
+            <label><input type="radio" name="decision" value="accept"> Accept</label>
+            <label><input type="radio" name="decision" value="reject"> Reject</label>
+        </div>
+        <div id="rejection-reason" class="hidden">
+          <label>Reason:</label>
+          <textarea id="reason-text" rows="3"></textarea>
+        </div>
+        <button id="confirm-decision">Confirm</button>
+        <button id="close-popup">Cancel</button>
+      </div>
+    </div>
+  </main>
+
+  <script src="/js/admin_index.js"></script>
+  <script src="/js/logout.js"></script>
+</body>
+</html>

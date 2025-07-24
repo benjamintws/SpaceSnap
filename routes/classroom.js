@@ -33,42 +33,56 @@ router.get('/', authenticate, async (req, res) => {
 // GET /api/classrooms/filter - Advanced filtering
 router.get('/filter', authenticate, async (req, res) => {
   try {
-    const { level, location, capacity, start, end, status } = req.query;
+    let { level, location, capacity, start, end, status, equipment } = req.query;
 
     const filter = {};
-    if (level) filter.level = Number(level);
-    if (location) filter.location = { $regex: new RegExp(location, 'i') };
-    if (capacity) filter.capacity = { $gte: Number(capacity) };
+
+    // Fix: support arrays for multi-select filters
+    if (level) {
+      const levels = Array.isArray(level) ? level.map(Number) : [Number(level)];
+      filter.level = { $in: levels };
+    }
+
+    if (location) {
+      const locations = Array.isArray(location) ? location : [location];
+      filter.location = { $in: locations };
+    }
+
+    if (capacity) {
+      filter.capacity = { $gte: Number(capacity) };
+    }
+
+    if (equipment) {
+      const eqList = Array.isArray(equipment) ? equipment : [equipment];
+      filter.equipment = { $all: eqList }; // classroom must have ALL selected
+    }
 
     let classrooms = await Classroom.find(filter);
 
+    // Optional: availability check (status = "available")
     if (status === 'available' && start && end) {
       const today = new Date().toISOString().split('T')[0];
-      const availableClassrooms = [];
 
-      for (let classroom of classrooms) {
+      classrooms = await Promise.all(classrooms.map(async (classroom) => {
         const conflict = await Booking.findOne({
           classroom: classroom._id,
           date: today,
           status: 'approved',
-          $or: [
-            { startTime: { $lt: end }, endTime: { $gt: start } }
-          ]
+          $or: [{ startTime: { $lt: end }, endTime: { $gt: start } }]
         });
+        return conflict ? null : classroom;
+      }));
 
-        if (!conflict) {
-          availableClassrooms.push(classroom);
-        }
-      }
-
-      classrooms = availableClassrooms;
+      classrooms = classrooms.filter(Boolean);
     }
 
     res.json(classrooms);
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    console.error('[FILTER ERROR]', err);
+    res.status(500).json({ message: 'Filter failed', error: err.message });
   }
 });
+
 
 // Optional: GET classroom by ID
 router.get('/:id', authenticate, async (req, res) => {

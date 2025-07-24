@@ -16,23 +16,32 @@ router.get('/', authenticate, async (req, res) => {
 // ✅ DELETE /api/notifications/:id - Delete a specific notification
 router.delete('/:id', authenticate, async (req, res) => {
   try {
-    const notification = await Notification.findById(req.params.id);
+    const { id } = req.params;
+
+    // Validate ID format first
+    if (!id.match(/^[0-9a-fA-F]{24}$/)) {
+      return res.status(400).json({ message: 'Invalid notification ID format' });
+    }
+
+    const notification = await Notification.findById(id);
 
     if (!notification) {
       return res.status(404).json({ message: 'Notification not found' });
     }
 
-    // 🚫 Prevent deleting someone else's notification
+    // 🔒 Make sure the user owns this notification
     if (notification.user.toString() !== req.user.id) {
-      return res.status(403).json({ message: 'Not authorized to delete this notification' });
+      return res.status(403).json({ message: 'Unauthorized to delete this notification' });
     }
 
     await notification.deleteOne();
-    res.json({ message: 'Notification deleted' });
+    return res.json({ message: 'Notification deleted successfully' });
 
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    console.error('❌ Error deleting notification:', err);
+    return res.status(500).json({ message: 'Server error' });
   }
 });
+
 
 module.exports = router;

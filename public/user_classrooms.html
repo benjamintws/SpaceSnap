@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Classrooms</title>
+  <link rel="stylesheet" href="/css/user_classrooms.css">
+</head>
+<body>
+  <header class="navbar">
+    <div class="nav-left">
+      <img src="/images/logo2.png" alt="Logo" class="logo">
+    </div>
+    <nav class="nav-center">
+      <button class="nav-btn" onclick="location.href='user_index.html'">Home</button>
+      <button class="nav-btn" onclick="location.href='user_classrooms.html'">Classrooms</button>
+      <button class="nav-btn" onclick="location.href='user_notification.html'">Notifications</button>
+    </nav>
+    <div class="nav-right">
+        <a href="#" id="logout-btn" class="logout-btn">Log Out</a>
+    </div>
+  </header>
+
+  <main class="content">
+    <div class="filter-bar" id="filter-bar">
+      <button id="toggle-filter">Filter</button>
+      <div id="filter-options" class="hidden">
+        <div class="filter-group">
+          <label>Level:</label>
+          <label><input type="checkbox" name="level" value="0"> G</label>
+          <label><input type="checkbox" name="level" value="1"> 1</label>
+          <label><input type="checkbox" name="level" value="2"> 2</label>
+          <label><input type="checkbox" name="level" value="3"> 3</label>
+        </div>
+
+        <div class="filter-group">
+          <label>Building:</label>
+          <label><input type="checkbox" name="building" value="West Building"> West</label>
+          <label><input type="checkbox" name="building" value="Central Building"> Central</label>
+          <label><input type="checkbox" name="building" value="East Building"> East</label>
+        </div>
+
+        <div class="filter-group">
+          <label>Capacity:</label>
+          <select name="capacity" id="capacity">
+            <option value="">Any</option>
+            <option value="20">20 and above</option>
+            <option value="50">50 and above</option>
+            <option value="100">100 and above</option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label>Equipment:</label>
+          <label><input type="checkbox" name="equipment" value="Air Conditioning"> A/C</label>
+          <label><input type="checkbox" name="equipment" value="Projector"> Projector</label>
+          <label><input type="checkbox" name="equipment" value="Speakers"> Speakers</label>
+          <label><input type="checkbox" name="equipment" value="Whiteboard"> Whiteboard</label>
+          <label><input type="checkbox" name="equipment" value="Computers"> Computers</label>
+        </div>
+
+        <button id="apply-filter">Apply</button>
+      </div>
+    </div>
+
+    <div id="filtered-results">
+      <!-- Filtered classrooms will be displayed here -->
+    </div>
+  </main>
+  <script src="/js/user_classrooms.js"></script>
+  <script src="/js/logout.js"></script>
+</body>
+</html>
